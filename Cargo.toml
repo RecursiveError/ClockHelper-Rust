@@ -1,6 +1,6 @@
 [package]
 name = "clock_helper"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["guilherme Silva Schultz <guilhermeSschultz.contato@gmail.com>"]
 description = "utility to facilitate clock management on STM32 microcontrollers."
