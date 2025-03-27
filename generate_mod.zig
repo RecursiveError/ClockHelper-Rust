@@ -5,6 +5,9 @@ pub fn main() !void {
     defer arena_state.deinit();
     const arena = arena_state.allocator();
 
+    var features = std.StringArrayHashMap(void).init(arena);
+    defer features.deinit();
+
     const cwd = std.fs.cwd();
     cwd.deleteFile("src/ClockTrees/mod.rs") catch {};
     var main_file = try cwd.createFile("src/ClockTrees/mod.rs", .{});
@@ -19,13 +22,19 @@ pub fn main() !void {
                     const name = entry.name;
                     if (std.mem.eql(u8, name, "mod.rs")) continue;
                     if (std.mem.indexOf(u8, name, ".rs")) |_| {
+                        const f_name: []const u8 = name[0..9];
                         const short_name = name[0..(name.len - 3)];
                         try main_file.writer().print(
                             \\#[cfg(feature = "{s}")]
                             \\pub mod {s};
                             \\
-                        , .{ short_name, short_name });
-                        try std.io.getStdOut().writer().print("{s} = []\n", .{short_name});
+                        , .{ f_name, short_name });
+                        if (features.get(f_name)) |_| {
+                            continue;
+                        }
+                        const f_key = try arena.alloc(u8, f_name.len);
+                        std.mem.copyForwards(u8, f_key, f_name);
+                        try features.put(f_key, {});
                     }
                 },
                 else => {},
@@ -36,6 +45,10 @@ pub fn main() !void {
     }
 
     main_file.close();
+
+    for (features.keys()) |k| {
+        try std.io.getStdIn().writer().print("{s} = []\n", .{k});
+    }
     var ch = std.process.Child.init(&[_][]const u8{ "cargo", "fmt", "--all" }, arena);
     _ = try ch.spawnAndWait();
 }

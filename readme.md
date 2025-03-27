@@ -13,7 +13,7 @@ Choose a controller from the [list](src/ClockTrees/):
 
 ```
 [dependencies.ClockHelper]
-features = ["<mcu_generic_name>"]
+features = ["<mcu_family_name>"]
 ```
 
 Create a clock using the settings you want to use:
@@ -30,7 +30,7 @@ And that's it, ClockHelper will give you the clock value of each peripheral for 
 example for STM32F103C8Tx:
 
 ```Rust
-use ClockHelper::ClockTrees::STM32F103C8_BTx as Clock;
+use clock_helper::ClockTrees::STM32F103C8_BTx as Clock;
 
 fn main() {
     let mut tree = Clock::ClockTree::default();
